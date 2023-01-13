@@ -11,6 +11,9 @@
 #include "Events/KeyEvent.h"
 #include "Events/MouseEvent.h"
 #include "Events/ApplicationEvent.h"
+#include "glm.hpp"
+#include "Renderer.h"
+#include "Core/RendererCamera.h"
 
 
 namespace RendererSpace {
@@ -49,7 +52,12 @@ namespace RendererSpace {
         static RendererApp* s_instance;
         Scope<Window> m_window;
 
-        bool bStop = false;
+        bool b_stop = false;
+
+        glm::vec2 m_viewPortSize = {0.f, 0.f};
+        bool b_viewportFocused = false, b_viewportHovered = false;
+
+        Ref<RendererCamera> m_rendererCamera;
     };
 }
 

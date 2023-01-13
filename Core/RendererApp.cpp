@@ -6,13 +6,20 @@
 #include "imgui/backends/imgui_impl_glfw.h"
 #include "imgui/backends/imgui_impl_opengl3.h"
 
+using namespace RendererSpace;
+
+RendererSpace::RendererApp* RendererSpace::RendererApp::s_instance = nullptr;
 
 RendererSpace::RendererApp::RendererApp() {
+    ASSERT(!s_instance, "Renderer Application already exist");
+    s_instance = this;
+
     Logger::init();
-    Renderer::init();
     m_window = Window::createWindow(WindowProps("Renderer Application", 1600, 900));
     m_window->setEventCallback(BIND_EVENT_FUN(RendererApp::onEvent));
     m_window->createImGuiContext();
+    Renderer::init();
+    m_rendererCamera = createRef<RendererCamera>(60.f, 1.66, .3f, 1000.f);
 }
 
 RendererSpace::RendererApp::~RendererApp() {
@@ -20,7 +27,7 @@ RendererSpace::RendererApp::~RendererApp() {
 }
 
 void RendererSpace::RendererApp::run() {
-    while(!bStop) {
+    while(!b_stop) {
         onUpdate();
     }
 }
@@ -28,6 +35,14 @@ void RendererSpace::RendererApp::run() {
 void RendererSpace::RendererApp::onUpdate() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glClearColor(.3, .4, .5, .5);
+
+    m_rendererCamera->onUpdate();
+
+    using namespace RendererSpace;
+    Renderer::beginScene(m_rendererCamera);
+    Renderer::drawModel();
+    Renderer::endScene();
+
     onImGui();
     m_window->onUpdate();
 }
@@ -59,10 +74,11 @@ void RendererSpace::RendererApp::onEvent(Event& event) {
     // use std::bind to convert a function pointer to a functional object
     eventDispatcher.dispatch<WindowCloseEvent>(BIND_EVENT_FUN(RendererApp::onWindowClose));
     eventDispatcher.dispatch<WindowResizeEvent>(BIND_EVENT_FUN(RendererApp::onWindowResize));
+    m_rendererCamera->onEvent(event);
 }
 
 bool RendererSpace::RendererApp::onWindowClose(WindowCloseEvent &event) {
-    bStop = true;
+    b_stop = true;
     return true;
 }
 
@@ -73,7 +89,7 @@ bool RendererSpace::RendererApp::onWindowResize(WindowResizeEvent &event) {
 
 void RendererSpace::RendererApp::onImGui() {
     beginImGuiFrame();
-    enableImGuiDocking();
+//    enableImGuiDocking();
 
     {
         ImGui::Begin("Renderer Settings");
