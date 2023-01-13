@@ -9,4 +9,4 @@
 >
 > * Add Event Callback to Renderer Application
 >
-> * Set ImGui context in Renderer Application
+> * ~~Set ImGui context in Renderer Application.~~ Actually the interfaces for createImGuiContext and destroyImGuiContext should in Window.h
