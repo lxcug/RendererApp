@@ -15,5 +15,5 @@
 > * RendererCamera
 > * Loading .obj model
 >
-> <img src="https://raw.githubusercontent.com/lxcug/imgs/main/imgs20230114002350.png" style="zoom:50%;" />
+> <img src="https://raw.githubusercontent.com/lxcug/imgs/main/imgs20230114013007.png" style="zoom:50%;" />
 
