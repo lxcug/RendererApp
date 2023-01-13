@@ -27,7 +27,7 @@ namespace RendererSpace {
         void onUpdate() override;
 
         bool isVSync() const override {
-            return m_windowData.bVSync;
+            return m_windowData.VSync;
         }
 
         void setVSync(bool enable) override final;
@@ -66,7 +66,7 @@ namespace RendererSpace {
         struct WindowData {
             std::string Title;
             unsigned Width, Height;
-            bool bVSync;
+            bool VSync;
 
             EventCallbackFun eventCallback;
         };

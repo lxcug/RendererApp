@@ -159,7 +159,7 @@ void RendererSpace::OpenGLWindow::setVSync(bool enable) {
         glfwSwapInterval(1);
     else
         glfwSwapInterval(0);
-    m_windowData.bVSync = enable;
+    m_windowData.VSync = enable;
 }
 
 void RendererSpace::OpenGLWindow::createImGuiContext() {
