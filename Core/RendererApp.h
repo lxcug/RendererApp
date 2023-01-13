@@ -8,6 +8,9 @@
 #include "Core.h"
 #include "Logger.h"
 #include "Window.h"
+#include "Events/KeyEvent.h"
+#include "Events/MouseEvent.h"
+#include "Events/ApplicationEvent.h"
 
 
 namespace RendererSpace {
@@ -17,6 +20,8 @@ namespace RendererSpace {
         ~RendererApp();
 
         void run();
+
+        void onEvent(Event& event);
 
         Window* getWindow() {
             return m_window.get();
@@ -30,14 +35,16 @@ namespace RendererSpace {
             return s_instance;
         }
 
-        virtual void close() {
-            bStop = true;
-        }
+        void beginImGui() const;
+        void endImGui() const;
 
-        virtual void beginImGui() const;
-        virtual void endImGui() const;
-        virtual void createImGuiContext();
-        virtual void destroyImGuiContext();
+    private:
+        void createImGuiContext();
+        void destroyImGuiContext();
+
+        bool onWindowClose(WindowCloseEvent &event);
+        bool onWindowResize(WindowResizeEvent &event);
+
 
     private:
         static RendererApp* s_instance;
