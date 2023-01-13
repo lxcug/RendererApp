@@ -7,6 +7,7 @@
 namespace RendererSpace {
     RendererAPI Renderer::s_rendererAPI = RendererAPI::OpenGL;
     Renderer3DData Renderer::s_data;
+    RendererStat Renderer::s_stat;
 
     void Renderer::loadOBJModel(const std::string &filepath) {
         objl::Loader Loader;
@@ -17,7 +18,7 @@ namespace RendererSpace {
         }
 
         for(auto mesh: Loader.LoadedMeshes)
-            s_data.CurrTriVertex = mesh.Vertices.size();
+            s_data.CurrTriVertex += mesh.Vertices.size();
 
         s_data.VertexBuffer = RendererSpace::VertexBuffer::createVertexBuffer(s_data.CurrTriVertex * sizeof(RendererSpace::TriVertex));
 
@@ -32,7 +33,7 @@ namespace RendererSpace {
                                                  mesh.Vertices[i].Position.Z};
                 s_data.TriVertexPtr->TexCoord = {mesh.Vertices[i].TextureCoordinate.X,
                                                  mesh.Vertices[i].TextureCoordinate.Y};
-                s_data.TriVertexPtr->Color = {.65, .213, .9, .5};
+                s_data.TriVertexPtr->Color = {84/255., 1., 159/255., 1.};
                 s_data.TriVertexPtr->TexIndex = 0;
                 s_data.TriVertexPtr->TilingFactor = 1.f;
                 s_data.TriVertexPtr->EntityID = 0;
@@ -72,10 +73,14 @@ namespace RendererSpace {
 
         s_data.Shader = RendererSpace::Shader::createShader("../Assets/Shaders/Renderer2D_Triangle.glsl");
         s_data.CameraUniformBuffer = UniformBuffer::createUniformBuffer(sizeof(CameraData), 0);
+
+        s_stat.VertexCount = s_data.CurrTriVertex;
+        s_stat.IndexCount = s_data.IndexCount;
+        s_stat.TriangleCount = s_data.IndexCount / 3;
     }
 
     void Renderer::init() {
-        loadOBJModel("../Assets/Models/spot/spot_triangulated_good.obj");
+        loadOBJModel("../Assets/Models/wolf/Wolf.obj");
     }
 
     void Renderer::drawModel() {

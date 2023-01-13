@@ -45,6 +45,12 @@ namespace RendererSpace {
         int CurrTriVertex = 0;
         int IndexCount = 0;
     };
+
+    struct RendererStat {
+        int VertexCount = 0;
+        int IndexCount = 0;
+        int TriangleCount = 0;
+    };
 }
 
 namespace RendererSpace {
@@ -69,9 +75,12 @@ namespace RendererSpace {
 
         static void drawModel();
 
+        static RendererStat& getStat() { return s_stat; }
+
     private:
         static RendererAPI s_rendererAPI;
         static Renderer3DData s_data;
+        static RendererStat s_stat;
     };
 }
 
