@@ -20,8 +20,9 @@ namespace RendererSpace {
         ~RendererApp();
 
         void run();
-
         void onEvent(Event& event);
+        void onUpdate();
+        void onImGui();
 
         Window* getWindow() {
             return m_window.get();
@@ -35,12 +36,13 @@ namespace RendererSpace {
             return s_instance;
         }
 
-        void beginImGui() const;
-        void endImGui() const;
+        void beginImGuiFrame() const;
+        void endImGuiFrame() const;
 
     private:
         bool onWindowClose(WindowCloseEvent &event);
         bool onWindowResize(WindowResizeEvent &event);
+        void enableImGuiDocking();
 
 
     private:

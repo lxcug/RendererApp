@@ -57,6 +57,8 @@ namespace RendererSpace {
         void setGLFWKeyEventCallback();
         void setGLFWApplicationEventCallback();
 
+        void setDarkTheme();
+
 
     private:
         GLFWwindow* m_window;  // glfw window
