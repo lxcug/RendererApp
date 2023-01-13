@@ -21,7 +21,10 @@ add_executable(Renderer main.cpp
         Buffers/GraphicsContex.cpp Buffers/GraphicsContex.h
         Platform/OpenGL/OpenGLContext.cpp Platform/OpenGL/OpenGLContext.h
         vendor/Glad/src/glad.c vendor/Glad/include/glad/glad.h
-        Core/RendererApp.cpp Core/RendererApp.h)
+        Core/RendererApp.cpp Core/RendererApp.h
+        Core/KeyCodes.h Core/MouseCodes.h
+        Events/Event.cpp Events/KeyEvent.cpp Events/ApplicationEvent.cpp Events/MouseEvent.cpp
+        )
 
 
 find_library(GLFW glfw3 ${PROJECT_SOURCE_DIR}/vendor/GLFW/lib-mingw-w64)
