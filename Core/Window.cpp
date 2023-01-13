@@ -3,7 +3,7 @@
 #include "Platform/OpenGL/OpenGLWindow.h"
 
 
-RendererSpace::Scope<RendererSpace::Window> RendererSpace::Window::createWindow(WindowProps &props) {
+RendererSpace::Scope<RendererSpace::Window> RendererSpace::Window::createWindow(const WindowProps &props) {
     switch (Renderer::getRendererAPI()) {
         case RendererAPI::None:
             ASSERT(false, "RendererAPI None is currently not supported");

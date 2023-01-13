@@ -11,7 +11,7 @@
 
 namespace RendererSpace {
     struct WindowProps {
-        explicit WindowProps(std::string title="Renderer", unsigned width=1600, unsigned height=900):
+        explicit WindowProps(std::string title="Unnamed Window", unsigned width=1600, unsigned height=900):
                 Title(std::move(title)), Width(width), Height(height) {}
 
         std::string Title;
@@ -33,9 +33,9 @@ namespace RendererSpace {
         virtual void setVSync(bool enable) = 0;
         virtual bool isVSync() const = 0;
 
-//        virtual void* getNativeWindow() const = 0;
+        virtual void* getNativeWindow() const = 0;
 
-        static Scope<Window> createWindow(WindowProps& props);
+        static Scope<Window> createWindow(const WindowProps& props = WindowProps());
     };
 }
 

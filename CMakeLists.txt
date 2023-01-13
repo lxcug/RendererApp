@@ -21,7 +21,7 @@ add_executable(Renderer main.cpp
         Buffers/GraphicsContex.cpp Buffers/GraphicsContex.h
         Platform/OpenGL/OpenGLContext.cpp Platform/OpenGL/OpenGLContext.h
         vendor/Glad/src/glad.c vendor/Glad/include/glad/glad.h
-        )
+        Core/RendererApp.cpp Core/RendererApp.h)
 
 
 find_library(GLFW glfw3 ${PROJECT_SOURCE_DIR}/vendor/GLFW/lib-mingw-w64)

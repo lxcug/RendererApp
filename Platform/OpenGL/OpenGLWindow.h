@@ -13,7 +13,7 @@
 namespace RendererSpace {
     class OpenGLWindow: public Window{
     public:
-        OpenGLWindow(WindowProps& props);
+        OpenGLWindow(const WindowProps& props);
 
         unsigned int getWidth() const override {
             return m_windowData.Width;
@@ -35,6 +35,10 @@ namespace RendererSpace {
 
         void setVSync(bool enable) override final {
             m_windowData.bVSync = true;
+        }
+
+        void* getNativeWindow() const override {
+            return m_window;
         }
 
 

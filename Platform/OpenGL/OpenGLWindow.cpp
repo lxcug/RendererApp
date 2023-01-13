@@ -3,7 +3,7 @@
 
 bool RendererSpace::OpenGLWindow::s_glfwInit = false;
 
-RendererSpace::OpenGLWindow::OpenGLWindow(RendererSpace::WindowProps &props) {
+RendererSpace::OpenGLWindow::OpenGLWindow(const RendererSpace::WindowProps &props) {
     m_windowData.Width = props.Width;
     m_windowData.Height = props.Height;
     m_windowData.Title = props.Title;
