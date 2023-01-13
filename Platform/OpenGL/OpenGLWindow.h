@@ -42,12 +42,19 @@ namespace RendererSpace {
             m_windowData.eventCallback = callback;
         }
 
+
+        /**
+         * @brief: For ImGui
+         */
+        void createImGuiContext() override;
+        void destroyImGuiContext() override;
+
+        /**
+         * @brief: For OpenGL Events
+         */
         void setGLFWWindowEventCallback();
-
         void setGLFWMouseEventCallback();
-
         void setGLFWKeyEventCallback();
-
         void setGLFWApplicationEventCallback();
 
 

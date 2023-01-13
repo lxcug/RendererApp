@@ -3,6 +3,10 @@
 #include "Events/MouseEvent.h"
 #include "Events/ApplicationEvent.h"
 
+#include "imgui/imgui.h"
+#include "imgui/backends/imgui_impl_glfw.h"
+#include "imgui/backends/imgui_impl_opengl3.h"
+
 
 bool RendererSpace::OpenGLWindow::s_glfwInit = false;
 
@@ -156,6 +160,36 @@ void RendererSpace::OpenGLWindow::setVSync(bool enable) {
     else
         glfwSwapInterval(0);
     m_windowData.bVSync = enable;
+}
+
+void RendererSpace::OpenGLWindow::createImGuiContext() {
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+
+    ImGuiIO& io = ImGui::GetIO();
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;       // Enable Keyboard Controls
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
+    io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // Enable Multi-Viewport / Platform Windows
+
+    // font path to be modified
+    io.Fonts->AddFontFromFileTTF("E:/code/opengl/resources/fonts/consolas.ttf", 17.f, nullptr);
+
+    ImGui::StyleColorsDark();
+    ImGuiStyle& style = ImGui::GetStyle();
+    if(io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
+        style.WindowRounding = 0.0f;
+        style.Colors[ImGuiCol_WindowBg].w = 1.0f;
+    }
+
+    ImGui_ImplGlfw_InitForOpenGL(m_window, true);
+    const char* glsl_version = "#version 450";
+    ImGui_ImplOpenGL3_Init(glsl_version);
+}
+
+void RendererSpace::OpenGLWindow::destroyImGuiContext() {
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
 }
 
 

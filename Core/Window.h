@@ -43,6 +43,9 @@ namespace RendererSpace {
 
         static Scope<Window> createWindow(const WindowProps& props = WindowProps());
 
+        virtual void createImGuiContext() = 0;
+        virtual void destroyImGuiContext() = 0;
+
     private:
         void* window;
     };

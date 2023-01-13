@@ -39,9 +39,6 @@ namespace RendererSpace {
         void endImGui() const;
 
     private:
-        void createImGuiContext();
-        void destroyImGuiContext();
-
         bool onWindowClose(WindowCloseEvent &event);
         bool onWindowResize(WindowResizeEvent &event);
 
