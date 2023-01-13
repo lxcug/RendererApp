@@ -115,7 +115,7 @@ void RendererSpace::RendererApp::enableImGuiDocking() {
     ImGui::Begin("DockSpace Demo", &dockspaceOpen, window_flags);
     ImGui::PopStyleVar();
 
-    if (opt_fullscreen)
+    if(opt_fullscreen)
         ImGui::PopStyleVar(2);
 
     // DockSpace
