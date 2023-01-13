@@ -1,12 +1,15 @@
 cmake_minimum_required(VERSION 3.24)
 project(Renderer)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 
 
 include_directories(vendor)
+include_directories(vendor/glm)
 include_directories(./)
 include_directories(vendor/imgui)
+include_directories(vendor/SPIRV-Cross)
+include_directories(vendor/shaderc/libshaderc/include)
 include_directories(vendor/spdlog/include)
 include_directories(vendor/Glad/include)
 
@@ -25,6 +28,9 @@ add_executable(Renderer main.cpp
         Core/RendererApp.cpp Core/RendererApp.h
         Core/KeyCodes.h Core/MouseCodes.h
         Events/Event.cpp Events/KeyEvent.cpp Events/ApplicationEvent.cpp Events/MouseEvent.cpp
+        Buffers/Buffer.cpp Platform/OpenGL/OpenGLBuffer.cpp
+        Buffers/VertexArray.cpp Platform/OpenGL/OpenGLVertexArray.cpp
+        Buffers/Shader.cpp Platform/OpenGL/OpenGLShader.cpp
 
         ${PROJECT_SOURCE_DIR}/vendor/imgui/imgui.h
         ${PROJECT_SOURCE_DIR}/vendor/imgui/imgui.cpp
@@ -39,16 +45,27 @@ add_executable(Renderer main.cpp
         ${PROJECT_SOURCE_DIR}/vendor/imgui/backends/imgui_impl_opengl3.cpp
         ${PROJECT_SOURCE_DIR}/vendor/imgui/imgui_demo.cpp
 
-        )
+        Core/OBJ_Loader.h
+        Buffers/UniformBuffer.cpp Platform/OpenGL/OpenGLUniformBuffer.cpp
+        Core/RendererCamera.cpp Core/RendererCamera.h
+        Core/OpenGLInput.cpp Core/OpenGLInput.h)
 
 
 find_library(GLFW glfw3 ${PROJECT_SOURCE_DIR}/vendor/GLFW/lib-mingw-w64)
 find_library(GLEW glew32s ${PROJECT_SOURCE_DIR}/vendor/glew)
+find_library(SHADERC shaderc_shared ${PROJECT_SOURCE_DIR}/vendor/shaderc)
 
 MESSAGE(STATUS "glew: " ${GLEW})
 MESSAGE(STATUS "glfw: " ${GLFW})
+MESSAGE(STATUS "shaderc " ${SHADERC})
+
 target_link_libraries(Renderer
         ${GLFW}
         ${GLEW}
+        ${SHADERC}
+
+        ${PROJECT_SOURCE_DIR}/vendor/VulKan/libspirv-cross-core.a
+        ${PROJECT_SOURCE_DIR}/vendor/VulKan/libspirv-cross-glsl.a
+
         opengl32.dll
         )
