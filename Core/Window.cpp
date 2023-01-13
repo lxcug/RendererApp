@@ -15,3 +15,5 @@ RendererSpace::Scope<RendererSpace::Window> RendererSpace::Window::createWindow(
     ASSERT(false, "Unknown RendererAPI");
     return nullptr;
 }
+
+

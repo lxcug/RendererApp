@@ -7,6 +7,7 @@
 
 #include "Core.h"
 #include "Logger.h"
+#include "Events/Event.h"
 
 
 namespace RendererSpace {
@@ -35,7 +36,15 @@ namespace RendererSpace {
 
         virtual void* getNativeWindow() const = 0;
 
+        virtual void shutDown() = 0;
+
+        using EventCallbackFun = std::function<void(Event&)>;
+        virtual void setEventCallback(const EventCallbackFun& callback) = 0;
+
         static Scope<Window> createWindow(const WindowProps& props = WindowProps());
+
+    private:
+        void* window;
     };
 }
 
