@@ -7,9 +7,6 @@ using namespace RendererSpace;
 
 
 int main() {
-    Logger::init();
-    Renderer::init();
-
     RendererApp app;
     app.run();
 
