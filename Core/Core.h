@@ -7,6 +7,8 @@
 
 #define ASSERT(x, ...) if(!(x)) { LOG_FATAL("Assertion Failed: {0}", __VA_ARGS__); raise(SIGABRT); }
 
+#include "iostream"
+#define BIND_EVENT_FUN(fun) std::bind(&fun, this, std::placeholders::_1)
 
 #include <memory>
 namespace RendererSpace {
