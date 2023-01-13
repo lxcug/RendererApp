@@ -46,6 +46,7 @@ namespace RendererSpace {
         bool onWindowClose(WindowCloseEvent &event);
         bool onWindowResize(WindowResizeEvent &event);
         void enableImGuiDocking();
+        void statImGuiRender();
 
 
     private:

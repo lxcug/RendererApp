@@ -91,11 +91,7 @@ void RendererSpace::RendererApp::onImGui() {
     beginImGuiFrame();
 //    enableImGuiDocking();
 
-    {
-        ImGui::Begin("Renderer Settings");
-        ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
-        ImGui::End();
-    }
+    statImGuiRender();
 
     endImGuiFrame();
 }
@@ -145,5 +141,16 @@ void RendererSpace::RendererApp::enableImGuiDocking() {
         ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
     }
     style.WindowMinSize.x = minWinSizeX;
+}
+
+void RendererApp::statImGuiRender() {
+    ImGui::Begin("Renderer Statistics");
+
+    auto& stat = Renderer::getStat();
+    ImGui::Text("Vertex count: %d", stat.VertexCount);
+    ImGui::Text("Index count: %d", stat.IndexCount);
+    ImGui::Text("Triangle count: %d", stat.TriangleCount);
+    ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
+    ImGui::End();
 }
 
