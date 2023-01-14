@@ -94,6 +94,12 @@ namespace RendererSpace {
     }
 
     void Renderer::init() {
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glEnable(GL_DEPTH_TEST);
+        glDepthFunc(GL_LEQUAL);
+        glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+        
         loadOBJModel("../Assets/Models/spot/spot_triangulated_good.obj");
     }
 

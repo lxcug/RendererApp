@@ -81,9 +81,6 @@ void RendererSpace::RendererApp::onUpdate() {
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glClearColor(.3, .4, .5, .5);
-    glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LEQUAL);
-    glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 
     m_rendererCamera->onUpdate();
 
