@@ -16,4 +16,16 @@
 > * Loading .obj model
 >
 > <img src="https://raw.githubusercontent.com/lxcug/imgs/main/imgs20230114013007.png" style="zoom:50%;" />
+>
+> 
 
+> **2023 1.14**
+>
+> * Add FrameBuffer
+>
+> <img src="https://raw.githubusercontent.com/lxcug/imgs/main/imgs20230115001002.png" style="zoom:50%;" />
+>
+> ---
+>
+> - [x] Fixed depth buffer render error
+> - [x] Fixed frame buffer Texture Attachment error
