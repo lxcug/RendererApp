@@ -9,8 +9,6 @@ RendererSpace::Scope<RendererSpace::Window> RendererSpace::Window::createWindow(
             ASSERT(false, "RendererAPI None is currently not supported");
         case RendererAPI::OpenGL:
             return createScope<OpenGLWindow>(props);
-        case RendererAPI::VulKan:
-            ASSERT(false, "RendererAPI None is currently not supported");
     }
     ASSERT(false, "Unknown RendererAPI");
     return nullptr;

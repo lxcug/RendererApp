@@ -1,7 +1,7 @@
 #include "GLFW/glfw3.h"
 #include "Renderer.h"
 #include "OBJ_Loader.h"
-#include "glm/ext/matrix_clip_space.hpp"
+#include "Buffers/FrameBuffer.h"
 
 
 namespace RendererSpace {
@@ -12,33 +12,32 @@ namespace RendererSpace {
     void Renderer::loadOBJModel(const std::string &filepath) {
         objl::Loader Loader;
         bool loadOut = Loader.LoadFile(filepath);
-        if(!loadOut) {
+        if (!loadOut) {
             ASSERT(false, "Can't load obj file!");
             return;
         }
 
-        for(auto mesh: Loader.LoadedMeshes)
+        for (auto mesh: Loader.LoadedMeshes)
             s_data.CurrTriVertex += mesh.Vertices.size();
 
-        s_data.VertexBuffer = RendererSpace::VertexBuffer::createVertexBuffer(s_data.CurrTriVertex * sizeof(RendererSpace::TriVertex));
+        s_data.VertexBuffer = RendererSpace::VertexBuffer::createVertexBuffer(
+                s_data.CurrTriVertex * sizeof(RendererSpace::TriVertex));
 
-        s_data.TriVertexBase = new TriVertex[s_data.CurrTriVertex];
-        s_data.TriVertexPtr = s_data.TriVertexBase;
+        s_data.Vertices.reserve(s_data.CurrTriVertex);
 
         std::vector<int> indices;
-        for(auto& mesh: Loader.LoadedMeshes) {
+        for (auto &mesh: Loader.LoadedMeshes) {
             LOG_INFO("Mesh name: {}", mesh.MeshName);
-            for(int i = 0; i < mesh.Vertices.size(); i++) {
-                s_data.TriVertexPtr->Position = {mesh.Vertices[i].Position.X, mesh.Vertices[i].Position.Y,
-                                                 mesh.Vertices[i].Position.Z};
-                s_data.TriVertexPtr->TexCoord = {mesh.Vertices[i].TextureCoordinate.X,
-                                                 mesh.Vertices[i].TextureCoordinate.Y};
-                s_data.TriVertexPtr->Color = {84/255., 1., 159/255., 1.};
-                s_data.TriVertexPtr->TexIndex = 0;
-                s_data.TriVertexPtr->TilingFactor = 1.f;
-                s_data.TriVertexPtr->EntityID = 0;
-                s_data.TriVertexPtr++;
-//                t->setNormal(j,Vector3f(mesh.Vertices[i+j].Normal.X,mesh.Vertices[i+j].Normal.Y,mesh.Vertices[i+j].Normal.Z));
+            for (int i = 0; i < mesh.Vertices.size(); i++) {
+                s_data.Vertices.push_back(
+                        {
+                            glm::vec3(mesh.Vertices[i].Position.X, mesh.Vertices[i].Position.Y,mesh.Vertices[i].Position.Z),
+                            glm::vec3(mesh.Vertices[i].Normal.X, mesh.Vertices[i].Normal.Y,mesh.Vertices[i].Normal.Z),
+                            glm::vec4(169 / 255., 169 / 255., 169 / 255., 1.),
+                            glm::vec2(mesh.Vertices[i].TextureCoordinate.X,mesh.Vertices[i].TextureCoordinate.Y),
+                            0.
+                        }
+                        );
             }
 
             for (int j = 0; j < mesh.Indices.size(); j += 3) {
@@ -48,56 +47,64 @@ namespace RendererSpace {
             }
         }
 
-        auto dataSize = (uint32_t)((uint8_t*)s_data.TriVertexPtr - (uint8_t*)s_data.TriVertexBase);
-        s_data.TriVertexPtr = s_data.TriVertexBase;  // TODO: reset
-        s_data.VertexBuffer->setData(s_data.TriVertexBase, dataSize);
+        s_data.VertexBuffer->setData(s_data.Vertices.data(), s_data.Vertices.size() * sizeof(TriVertex));
 
         s_data.IndexCount = indices.size();
-        auto* temp = new unsigned int [indices.size()];
-        memcpy(temp, &indices[0], indices.size()*sizeof(unsigned int));
+        auto *temp = new unsigned int[indices.size()];
+        memcpy(temp, &indices[0], indices.size() * sizeof(unsigned int));
         Ref<IndexBuffer> triIndexBuffer = RendererSpace::IndexBuffer::createIndexBuffer(temp, indices.size());
+
         delete[] temp;
 
 
         s_data.VertexArray = RendererSpace::VertexArray::createVertexArray();
         s_data.VertexBuffer->setLayout({
                                                {ShaderDataType::Float3, "a_Position"},
+                                               {ShaderDataType::Float3, "a_Normal"},
                                                {ShaderDataType::Float4, "a_Color"},
                                                {ShaderDataType::Float2, "a_TexCoord"},
                                                {ShaderDataType::Float, "a_TexIndex"},
-                                               {ShaderDataType::Float, "a_TilingFactor"},
-                                               {ShaderDataType::Int, "a_EntityID"},
                                        });
         s_data.VertexArray->addVertexBuffer(s_data.VertexBuffer);
         s_data.VertexArray->setIndexBuffer(triIndexBuffer);
 
         s_data.Shader = RendererSpace::Shader::createShader("../Assets/Shaders/Renderer2D_Triangle.glsl");
-        s_data.CameraUniformBuffer = UniformBuffer::createUniformBuffer(sizeof(CameraData), 0);
+        s_data.Shader->bind();
 
+        s_data.Textures[0] = Texture2D::createTexture2D("../Assets/Models/spot/spot_texture.png");
+        s_data.Textures[0]->bind(0);
+        s_data.Textures[1] = Texture2D::createTexture2D("../Assets/Models/rock/rock.png");
+        s_data.Textures[1]->bind(1);
+        s_data.Textures[2] = Texture2D::createTexture2D("../Assets/Models/Crate/crate_1.jpg");
+        s_data.Textures[2]->bind(2);
+
+
+        // NOTE: Actually we don't need to do this, cause the initial value of uniform sample2D u_Textures[i] is i
+        int samplers[32];
+        for(int i = 0; i < 32; i++)
+            samplers[i] = i;
+        s_data.Shader->setIntArray("u_Textures", samplers, 32);
+
+
+
+        // statistic
         s_stat.VertexCount = s_data.CurrTriVertex;
         s_stat.IndexCount = s_data.IndexCount;
         s_stat.TriangleCount = s_data.IndexCount / 3;
     }
 
     void Renderer::init() {
-        loadOBJModel("../Assets/Models/wolf/Wolf.obj");
+        loadOBJModel("../Assets/Models/spot/spot_triangulated_good.obj");
     }
 
     void Renderer::drawModel() {
         s_data.Shader->bind();
-//        RenderCommand::drawIndexed(s_data.VertexArray, s_data.IndexCount);
         s_data.VertexArray->bind();
         glDrawElements(GL_TRIANGLES, (GLsizei)s_data.IndexCount, GL_UNSIGNED_INT, nullptr);
     }
 
-    void Renderer::beginScene() {
-        s_data.CameraBuffer.ViewProjection = glm::perspective(glm::radians(90.f), 1.66f, .3f, 1000.f);
-        s_data.CameraUniformBuffer->setData(&s_data.CameraBuffer, sizeof(CameraData));
-    }
-
     void Renderer::beginScene(RendererCamera &camera) {
-        s_data.CameraBuffer.ViewProjection = camera.getViewProjection();
-        s_data.CameraUniformBuffer->setData(&s_data.CameraBuffer, sizeof(CameraData));
+        s_data.Shader->setMat4("u_ViewProjection", camera.getViewProjection());
     }
 
     void Renderer::endScene() {
@@ -105,9 +112,11 @@ namespace RendererSpace {
     }
 
     void Renderer::beginScene(Ref<RendererCamera> camera) {
-        s_data.CameraBuffer.ViewProjection = camera->getViewProjection();
-        s_data.CameraUniformBuffer->setData(&s_data.CameraBuffer, sizeof(CameraData));
+        s_data.Shader->setMat4("u_ViewProjection", camera->getViewProjection());
     }
 
-
+    void Renderer::beginScene() {
+        glm::mat4 viewProjection = {1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1};
+        s_data.Shader->setMat4("u_ViewProjection", viewProjection);
+    }
 }

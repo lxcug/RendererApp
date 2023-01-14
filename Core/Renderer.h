@@ -13,20 +13,19 @@
 #include "Buffers/Shader.h"
 #include "Buffers/UniformBuffer.h"
 #include "RendererCamera.h"
+#include "Buffers/Texture.h"
 
 
 namespace RendererSpace {
     struct TriVertex {
         glm::vec3 Position;
-        glm::vec4 Color = {100, 100, 100, 0.5};
+        glm::vec3 Normal;
+        glm::vec4 Color;
         glm::vec2 TexCoord;
-        float TexIndex = 0;
-        float TilingFactor = 1.f;
-        int EntityID = 0;
-    };
+        float TexIndex;
 
-    struct CameraData {
-        glm::mat4 ViewProjection;
+        TriVertex(glm::vec3 position, glm::vec3 normal, glm::vec4 color, glm::vec2 texCoord, float texIndex): Position(position),
+        Normal(normal), Color(color), TexCoord(texCoord), TexIndex(texIndex) {}
     };
 
     struct Renderer3DData {
@@ -35,12 +34,9 @@ namespace RendererSpace {
         Ref<IndexBuffer> IndexBuffer;
         Ref<VertexArray> VertexArray;
 
-        CameraData CameraBuffer;
-        Ref<UniformBuffer> CameraUniformBuffer;
+        std::array<Ref<Texture2D>, 32> Textures;
 
-
-        TriVertex* TriVertexBase = nullptr;
-        TriVertex* TriVertexPtr = nullptr;
+        std::vector<TriVertex> Vertices;
 
         int CurrTriVertex = 0;
         int IndexCount = 0;
@@ -57,7 +53,6 @@ namespace RendererSpace {
     enum class RendererAPI {
         None = 0x0,
         OpenGL,
-        VulKan,
     };
 
     class Renderer {
@@ -77,7 +72,7 @@ namespace RendererSpace {
 
         static RendererStat& getStat() { return s_stat; }
 
-    private:
+//    private:
         static RendererAPI s_rendererAPI;
         static Renderer3DData s_data;
         static RendererStat s_stat;

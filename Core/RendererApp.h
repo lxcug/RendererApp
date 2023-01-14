@@ -14,6 +14,8 @@
 #include "glm.hpp"
 #include "Renderer.h"
 #include "Core/RendererCamera.h"
+#include "Buffers/FrameBuffer.h"
+#include "Core/Mesh.h"
 
 
 namespace RendererSpace {
@@ -25,7 +27,7 @@ namespace RendererSpace {
         void run();
         void onEvent(Event& event);
         void onUpdate();
-        void onImGui();
+        void onImGuiRender();
 
         Window* getWindow() {
             return m_window.get();
@@ -54,11 +56,15 @@ namespace RendererSpace {
         Scope<Window> m_window;
 
         bool b_stop = false;
-
-        glm::vec2 m_viewPortSize = {0.f, 0.f};
-        bool b_viewportFocused = false, b_viewportHovered = false;
-
         Ref<RendererCamera> m_rendererCamera;
+
+        // For viewport
+        glm::vec2 m_viewportSize = {0.f, 0.f};
+        glm::vec2 m_viewportBounds[2];
+        Ref<FrameBuffer> m_frameBuffer;
+        bool b_viewportFocused = false, b_viewportHovered = false, b_blockEvent = false;
+
+//        Mesh* m_mesh;
     };
 }
 

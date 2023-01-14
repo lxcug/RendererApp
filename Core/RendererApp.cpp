@@ -1,10 +1,14 @@
 #include "RendererApp.h"
 #include "Renderer.h"
-
 #include "GLFW/glfw3.h"
 #include "imgui/imgui.h"
 #include "imgui/backends/imgui_impl_glfw.h"
 #include "imgui/backends/imgui_impl_opengl3.h"
+#include "Platform/OpenGL/OpenGLTexture.h"
+
+#define USE_FRAMEBUFFER 1
+#define STATISTICS 1
+
 
 using namespace RendererSpace;
 
@@ -14,12 +18,36 @@ RendererSpace::RendererApp::RendererApp() {
     ASSERT(!s_instance, "Renderer Application already exist");
     s_instance = this;
 
+    // Init log
     Logger::init();
+
+    // Create window and init glfw
     m_window = Window::createWindow(WindowProps("Renderer Application", 1600, 900));
     m_window->setEventCallback(BIND_EVENT_FUN(RendererApp::onEvent));
+
+    // Create ImGui context
     m_window->createImGuiContext();
+
+#if USE_FRAMEBUFFER
+    // create Framebuffer
+    FrameBufferSpecification spec;
+    spec.Width = 1280;
+    spec.Height = 720;
+    spec.Samples = 1;
+    spec.Attachments = {
+            FrameBufferTextureFormat::RGBA8,
+//            FrameBufferTextureFormat::RGB8,
+//            FrameBufferTextureFormat::RED_INTEGER,
+            FrameBufferTextureFormat::Depth,
+            };
+    m_frameBuffer = FrameBuffer::createFrameBuffer(spec);
+#endif
+
+    // Init Renderer
     Renderer::init();
-    m_rendererCamera = createRef<RendererCamera>(60.f, 1.66, .3f, 1000.f);
+
+    // Create Renderer Camera
+    m_rendererCamera = createRef<RendererCamera>();
 }
 
 RendererSpace::RendererApp::~RendererApp() {
@@ -29,22 +57,43 @@ RendererSpace::RendererApp::~RendererApp() {
 void RendererSpace::RendererApp::run() {
     while(!b_stop) {
         onUpdate();
+
+        beginImGuiFrame();
+        onImGuiRender();
+        endImGuiFrame();
+
+        m_window->onUpdate();
     }
 }
 
 void RendererSpace::RendererApp::onUpdate() {
+#if USE_FRAMEBUFFER
+    if(FrameBufferSpecification spec = m_frameBuffer->getSpecification(); m_viewportSize.x > 0.0f &&
+                                                                          m_viewportSize.y > 0.0f &&
+                                                                          (spec.Width != m_viewportSize.x ||
+                                                                           spec.Height != m_viewportSize.y)) {
+        m_frameBuffer->resize((uint32_t) m_viewportSize.x, (uint32_t) m_viewportSize.y);
+        m_rendererCamera->setViewportSize(m_viewportSize.x, m_viewportSize.y);
+    }
+    m_frameBuffer->bind();
+//    m_frameBuffer->clearAttachment(1, -1);
+#endif
+
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glClearColor(.3, .4, .5, .5);
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LEQUAL);
+    glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 
     m_rendererCamera->onUpdate();
 
-    using namespace RendererSpace;
     Renderer::beginScene(m_rendererCamera);
     Renderer::drawModel();
     Renderer::endScene();
 
-    onImGui();
-    m_window->onUpdate();
+#if USE_FRAMEBUFFER
+    m_frameBuffer->unbind();
+#endif
 }
 
 void RendererSpace::RendererApp::beginImGuiFrame() const {
@@ -67,6 +116,32 @@ void RendererSpace::RendererApp::endImGuiFrame() const {
 }
 
 
+void RendererSpace::RendererApp::onImGuiRender() {
+#if USE_FRAMEBUFFER
+    enableImGuiDocking();
+    {
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
+        ImGui::Begin("Viewport");
+
+        auto viewportMinRegion = ImGui::GetWindowContentRegionMin();
+        auto viewportMaxRegion = ImGui::GetWindowContentRegionMax();
+        auto viewportOffset = ImGui::GetWindowPos();
+        ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
+        m_viewportSize = { viewportPanelSize.x, viewportPanelSize.y };
+        uint64_t textureID = m_frameBuffer->getColorAttachmentRendererID();
+        ImGui::Image(reinterpret_cast<void*>(textureID), ImVec2{ m_viewportSize.x, m_viewportSize.y },
+                     ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+
+        ImGui::End();
+        ImGui::PopStyleVar();
+    }
+#endif
+
+#if STATISTICS
+    statImGuiRender();
+#endif
+}
+
 void RendererSpace::RendererApp::onEvent(Event& event) {
     using namespace RendererSpace;
     EventDispatcher eventDispatcher(event);
@@ -85,15 +160,6 @@ bool RendererSpace::RendererApp::onWindowClose(WindowCloseEvent &event) {
 bool RendererSpace::RendererApp::onWindowResize(WindowResizeEvent &event) {
     LOG_TRACE("Window resize to ({}, {})", event.getWidth(), event.getHeight());
     return true;
-}
-
-void RendererSpace::RendererApp::onImGui() {
-    beginImGuiFrame();
-//    enableImGuiDocking();
-
-    statImGuiRender();
-
-    endImGuiFrame();
 }
 
 void RendererSpace::RendererApp::enableImGuiDocking() {
