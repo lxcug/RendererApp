@@ -10,8 +10,6 @@ RendererSpace::Ref<RendererSpace::VertexArray> RendererSpace::VertexArray::creat
             return nullptr;
         case RendererAPI::OpenGL:
             return createRef<RendererSpace::OpenGLVertexArray>();
-        case RendererAPI::VulKan:
-            ASSERT(false, "RendererAPI::Vulkan is currently not supported!");
     }
     return nullptr;
 }

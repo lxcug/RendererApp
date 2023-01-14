@@ -12,8 +12,6 @@ namespace RendererSpace {
                 return nullptr;
             case RendererAPI::OpenGL:
                 return createRef<OpenGLVertexBuffer>(size);
-            case RendererAPI::VulKan:
-                ASSERT(false, "RendererAPI::Vulkan is currently not supported!");
         }
         ASSERT(false, "Unknown RendererAPI!");
         return nullptr;
@@ -26,12 +24,11 @@ namespace RendererSpace {
                 return nullptr;
             case RendererAPI::OpenGL:
                 return createRef<OpenGLVertexBuffer>(vertices, size);
-            case RendererAPI::VulKan:
-                ASSERT(false, "RendererAPI::Vulkan is currently not supported!");
         }
         ASSERT(false, "Unknown RendererAPI!");
         return nullptr;
     }
+
 
     Ref<IndexBuffer> IndexBuffer::createIndexBuffer(unsigned int *indices, unsigned int count) {
         switch (Renderer::getRendererAPI()) {
@@ -40,8 +37,6 @@ namespace RendererSpace {
                 return nullptr;
             case RendererAPI::OpenGL:
                 return createRef<OpenGLIndexBuffer>(indices, count);
-            case RendererAPI::VulKan:
-                ASSERT(false, "RendererAPI::Vulkan is currently not supported!");
         }
         ASSERT(false, "Unknown RendererAPI!");
         return nullptr;

@@ -11,8 +11,6 @@ namespace RendererSpace {
                 ASSERT(false, "RendererAPI None is currently not supported");
             case RendererAPI::OpenGL:
                 return createScope<OpenGLContext>((GLFWwindow*)window);
-            case RendererAPI::VulKan:
-                ASSERT(false, "RendererAPI None is currently not supported");
         }
         ASSERT(false, "Unknown RendererAPI");
         return nullptr;
