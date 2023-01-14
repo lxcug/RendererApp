@@ -40,7 +40,7 @@ RendererSpace::OpenGLWindow::OpenGLWindow(const RendererSpace::WindowProps &prop
     setGLFWKeyEventCallback();
     setGLFWApplicationEventCallback();
 
-    LOG_INFO("createWindow window \"{0}\": ({1}, {2})", m_windowData.Title, m_windowData.Width, m_windowData.Height);
+    LOG_INFO("CreateWindow window \"{0}\": ({1}, {2})", m_windowData.Title, m_windowData.Width, m_windowData.Height);
 }
 
 void RendererSpace::OpenGLWindow::onUpdate() {

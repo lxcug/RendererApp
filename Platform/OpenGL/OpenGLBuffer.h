@@ -17,6 +17,8 @@ namespace RendererSpace {
         OpenGLVertexBuffer() = default;
         OpenGLVertexBuffer(unsigned size);  // NOLINT
         OpenGLVertexBuffer(float* vertices, unsigned size);
+
+//        OpenGLVertexBuffer();
         ~OpenGLVertexBuffer() override;
 
         void bind() const override;

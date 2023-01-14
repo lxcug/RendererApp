@@ -63,23 +63,14 @@ namespace RendererSpace {
         void uploadUniformIntArray(const std::string& name, int* values, unsigned count);
 
     private:
-        std::string  readFile(const std::string& filePath);
+        std::string readFile(const std::string& filePath);
         std::unordered_map<GLenum, std::string> preProcess(const std::string& source);
-
-        void compileOrGetVulkanBinaries(const std::unordered_map<GLenum, std::string>& shaderSources);
-        void compileOrGetOpenGLBinaries();
-        void createProgram();
-        void reflect(GLenum stage, const std::vector<uint32_t>& shaderData);
+        void compile(const std::unordered_map<GLenum, std::string>& shaderSources);
 
     private:
         unsigned m_rendererID;
         std::string m_name;
         std::string m_filePath;
-
-        std::unordered_map<GLenum, std::vector<uint32_t>> m_vulkanSPIRV;
-        std::unordered_map<GLenum, std::vector<uint32_t>> m_openGLSPIRV;
-
-        std::unordered_map<GLenum, std::string> m_openGLSourceCode;
     };
 }
 
