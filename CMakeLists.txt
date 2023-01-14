@@ -45,10 +45,15 @@ add_executable(Renderer main.cpp
         ${PROJECT_SOURCE_DIR}/vendor/imgui/backends/imgui_impl_opengl3.cpp
         ${PROJECT_SOURCE_DIR}/vendor/imgui/imgui_demo.cpp
 
+        ${PROJECT_SOURCE_DIR}/vendor/stb_image/stb_image.cpp
+
         Core/OBJ_Loader.h
         Buffers/UniformBuffer.cpp Platform/OpenGL/OpenGLUniformBuffer.cpp
         Core/RendererCamera.cpp Core/RendererCamera.h
-        Core/OpenGLInput.cpp Core/OpenGLInput.h)
+        Core/OpenGLInput.cpp Core/OpenGLInput.h
+        Buffers/Texture.cpp Platform/OpenGL/OpenGLTexture.cpp
+        Buffers/FrameBuffer.cpp Platform/OpenGL/OpenGLFrameBuffer.cpp
+        Core/Mesh.cpp Core/Mesh.h)
 
 
 find_library(GLFW glfw3 ${PROJECT_SOURCE_DIR}/vendor/GLFW/lib-mingw-w64)
