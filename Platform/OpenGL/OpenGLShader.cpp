@@ -27,7 +27,7 @@ RendererSpace::OpenGLShader::OpenGLShader(const std::string &filePath): m_filePa
         std::string source = readFile(filePath);
         auto shaderSources = preProcess(source);
         compile(shaderSources);
-        LOG_INFO("Compile Shader takes {}s", timer.elapsed());
+        LOG_INFO("Compile Shader takes {}s", timer.elapsedS());
     }
 }
 
@@ -39,7 +39,7 @@ m_name(std::move(name)) {
         sources[GL_VERTEX_SHADER] = vertexSrc;
         sources[GL_FRAGMENT_SHADER] = fragmentSrc;
         compile(sources);
-        LOG_INFO("Compile Shader takes {}s", timer.elapsed());
+        LOG_INFO("Compile Shader takes {}s", timer.elapsedS());
     }
 }
 

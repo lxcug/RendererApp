@@ -20,12 +20,12 @@ namespace RendererSpace {
             m_startTime = std::chrono::steady_clock::now();
         }
 
-        float elapsed() {
-            return (float)(std::chrono::steady_clock::now() - m_startTime).count();
+        float elapsedS() {
+            return (float)((double)(std::chrono::steady_clock::now() - m_startTime).count() / 1e6);
         }
 
-        float elapsedMillis() {
-            return elapsed() * 1000.f;
+        float elapsedMS() {
+            return (float)(elapsedS() / 1e3);
         }
 
     private:
