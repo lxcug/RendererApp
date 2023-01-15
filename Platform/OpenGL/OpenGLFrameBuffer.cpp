@@ -2,8 +2,6 @@
 #include <utility>
 #include "Glad/glad.h"
 
-#define ACTIVATE_TEXTURE_SLOTS 1
-
 
 namespace RendererSpace {
     static const uint32_t s_MaxFramebufferSize = 8192;
@@ -45,20 +43,12 @@ RendererSpace::OpenGLFrameBuffer::OpenGLFrameBuffer(RendererSpace::FrameBufferSp
 }
 
 void RendererSpace::OpenGLFrameBuffer::invalidate() {
-#if ACTIVATE_TEXTURE_SLOTS
-//    for(int i = 0; i <= 32; i++) {  // TODO: if i is only to 31, the last texture slot 31 can't work
-//        glActiveTexture(GL_TEXTURE0 + i);
-//    }
-    glActiveTexture(GL_ACTIVE_TEXTURE);
-#endif
-
-
     using namespace RendererSpace;
 
     if(m_rendererID) {
         glDeleteFramebuffers(1, &m_rendererID);
         glDeleteTextures(m_colorAttachments.size(), m_colorAttachments.data());
-        glDeleteTextures(1, &m_depthAttachment);
+        glDeleteRenderbuffers(1, &m_depthAttachment);
 
         m_colorAttachments.clear();
         m_depthAttachment = 0;

@@ -1,13 +1,35 @@
-#include "GLFW/glfw3.h"
+#include "Glad/glad.h"
 #include "Renderer.h"
 #include "OBJ_Loader.h"
 #include "Buffers/FrameBuffer.h"
+
+#define ACTIVE_TEXTURE_SLOTS 1
+#define ENABLE_DEPTH_BUFFER 1
+#define ENABLE_BLEND 1
 
 
 namespace RendererSpace {
     RendererAPI Renderer::s_rendererAPI = RendererAPI::OpenGL;
     Renderer3DData Renderer::s_data;
     RendererStat Renderer::s_stat;
+
+    void Renderer::init() {
+#if ENABLE_BLEND
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+#endif
+
+#if ENABLE_DEPTH_BUFFER
+        glEnable(GL_DEPTH_TEST);
+        glDepthFunc(GL_LEQUAL);
+#endif
+
+#if ACTIVE_TEXTURE_SLOTS
+        glActiveTexture(GL_ACTIVE_TEXTURE);
+#endif
+
+        loadOBJModel("../Assets/Models/spot/spot_triangulated_good.obj");
+    }
 
     void Renderer::loadOBJModel(const std::string &filepath) {
         objl::Loader Loader;
@@ -91,16 +113,6 @@ namespace RendererSpace {
         s_stat.VertexCount = s_data.CurrTriVertex;
         s_stat.IndexCount = s_data.IndexCount;
         s_stat.TriangleCount = s_data.IndexCount / 3;
-    }
-
-    void Renderer::init() {
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        glEnable(GL_DEPTH_TEST);
-        glDepthFunc(GL_LEQUAL);
-        glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
-        
-        loadOBJModel("../Assets/Models/spot/spot_triangulated_good.obj");
     }
 
     void Renderer::drawModel() {

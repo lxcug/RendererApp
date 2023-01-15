@@ -49,6 +49,11 @@ namespace RendererSpace {
         bool onWindowResize(WindowResizeEvent &event);
         void enableImGuiDocking();
         void statImGuiRender();
+        void settingsImGuiRender();
+        struct SettingsData {
+            glm::vec4 BackgroundColor = {134/255., 255/255., 248/255., 128/255.};
+        };
+        SettingsData m_settingsData;
 
 
     private:
@@ -60,11 +65,8 @@ namespace RendererSpace {
 
         // For viewport
         glm::vec2 m_viewportSize = {0.f, 0.f};
-        glm::vec2 m_viewportBounds[2];
         Ref<FrameBuffer> m_frameBuffer;
         bool b_viewportFocused = false, b_viewportHovered = false, b_blockEvent = false;
-
-//        Mesh* m_mesh;
     };
 }
 

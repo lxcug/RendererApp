@@ -5,9 +5,11 @@
 #include "imgui/backends/imgui_impl_glfw.h"
 #include "imgui/backends/imgui_impl_opengl3.h"
 #include "Platform/OpenGL/OpenGLTexture.h"
+#include "glm/gtc/type_ptr.hpp"
 
 #define USE_FRAMEBUFFER 1
-#define STATISTICS 1
+#define IMGUI_WIDGET_STATISTICS 1
+#define IMGUI_WIDGET_SETTINGS 1
 
 
 using namespace RendererSpace;
@@ -68,19 +70,18 @@ void RendererSpace::RendererApp::run() {
 
 void RendererSpace::RendererApp::onUpdate() {
 #if USE_FRAMEBUFFER
-    if(FrameBufferSpecification spec = m_frameBuffer->getSpecification(); m_viewportSize.x > 0.0f &&
-                                                                          m_viewportSize.y > 0.0f &&
-                                                                          (spec.Width != m_viewportSize.x ||
-                                                                           spec.Height != m_viewportSize.y)) {
+    FrameBufferSpecification spec = m_frameBuffer->getSpecification();
+    if(m_viewportSize.x > 0.0f && m_viewportSize.y > 0.0f && (spec.Width != m_viewportSize.x || spec.Height != m_viewportSize.y)) {
         m_frameBuffer->resize((uint32_t) m_viewportSize.x, (uint32_t) m_viewportSize.y);
         m_rendererCamera->setViewportSize(m_viewportSize.x, m_viewportSize.y);
     }
     m_frameBuffer->bind();
-//    m_frameBuffer->clearAttachment(1, -1);
+    m_frameBuffer->clearAttachment(0, -1);
 #endif
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glClearColor(.3, .4, .5, .5);
+    glClearColor(m_settingsData.BackgroundColor.r, m_settingsData.BackgroundColor.g, m_settingsData.BackgroundColor.b,
+                 m_settingsData.BackgroundColor.a);
 
     m_rendererCamera->onUpdate();
 
@@ -120,9 +121,6 @@ void RendererSpace::RendererApp::onImGuiRender() {
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
         ImGui::Begin("Viewport");
 
-        auto viewportMinRegion = ImGui::GetWindowContentRegionMin();
-        auto viewportMaxRegion = ImGui::GetWindowContentRegionMax();
-        auto viewportOffset = ImGui::GetWindowPos();
         ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
         m_viewportSize = { viewportPanelSize.x, viewportPanelSize.y };
         uint64_t textureID = m_frameBuffer->getColorAttachmentRendererID();
@@ -134,8 +132,12 @@ void RendererSpace::RendererApp::onImGuiRender() {
     }
 #endif
 
-#if STATISTICS
+#if IMGUI_WIDGET_STATISTICS
     statImGuiRender();
+#endif
+
+#if IMGUI_WIDGET_SETTINGS
+    settingsImGuiRender();
 #endif
 }
 
@@ -178,9 +180,11 @@ void RendererSpace::RendererApp::enableImGuiDocking() {
         window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
         window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
     }
+
     // When using ImGuiDockNodeFlags_PassthruCentralNode, DockSpace() will render our background and handle the pass-thru hole, so we ask Begin() to not render a background.
     if (dockspace_flags & ImGuiDockNodeFlags_PassthruCentralNode)
         window_flags |= ImGuiWindowFlags_NoBackground;
+
     // Important: note that we proceed even if Begin() returns false (aka window is collapsed).
     // This is because we want to keep our DockSpace() active. If a DockSpace() is inactive,
     // all active windows docked into it will lose their parent and become undocked.
@@ -190,7 +194,7 @@ void RendererSpace::RendererApp::enableImGuiDocking() {
     ImGui::Begin("DockSpace Demo", &dockspaceOpen, window_flags);
     ImGui::PopStyleVar();
 
-    if(opt_fullscreen)
+    if (opt_fullscreen)
         ImGui::PopStyleVar(2);
 
     // DockSpace
@@ -214,6 +218,12 @@ void RendererApp::statImGuiRender() {
     ImGui::Text("Index count: %d", stat.IndexCount);
     ImGui::Text("Triangle count: %d", stat.TriangleCount);
     ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
+    ImGui::End();
+}
+
+void RendererApp::settingsImGuiRender() {
+    ImGui::Begin("Settings");
+    ImGui::ColorEdit4("Background color", glm::value_ptr(m_settingsData.BackgroundColor));
     ImGui::End();
 }
 
