@@ -29,3 +29,8 @@
 > - [x] Fixed frame buffer Texture Attachment error
 >
 > <img src="https://raw.githubusercontent.com/lxcug/imgs/main/imgs20230115001002.png" style="zoom:50%;" />
+
+> **2023 1.16**
+>
+> - [x] Fixed Timer.h error
+> - [x] Fixed FrameBuffer Resize Error
