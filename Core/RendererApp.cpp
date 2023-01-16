@@ -4,12 +4,7 @@
 #include "imgui/imgui.h"
 #include "imgui/backends/imgui_impl_glfw.h"
 #include "imgui/backends/imgui_impl_opengl3.h"
-#include "Platform/OpenGL/OpenGLTexture.h"
 #include "glm/gtc/type_ptr.hpp"
-
-#define USE_FRAMEBUFFER 1
-#define IMGUI_WIDGET_STATISTICS 1
-#define IMGUI_WIDGET_SETTINGS 1
 
 
 using namespace RendererSpace;
@@ -30,20 +25,22 @@ RendererSpace::RendererApp::RendererApp() {
     // Create ImGui context
     m_window->createImGuiContext();
 
-#if USE_FRAMEBUFFER
-    // create Framebuffer
-    FrameBufferSpecification spec;
-    spec.Width = 1280;
-    spec.Height = 720;
-    spec.Samples = 1;
-    spec.Attachments = {
-            FrameBufferTextureFormat::RGBA8,
-//            FrameBufferTextureFormat::RGB8,
-//            FrameBufferTextureFormat::RED_INTEGER,
-            FrameBufferTextureFormat::Depth,
-            };
-    m_frameBuffer = FrameBuffer::createFrameBuffer(spec);
-#endif
+    RendererSpace::GlobalSettings::init();
+
+    if(GlobalSettings::b_useFrameBuffer) {
+        // create Framebuffer
+        FrameBufferSpecification spec;
+        spec.Width = 1280;
+        spec.Height = 720;
+        spec.Samples = 1;
+        spec.Attachments = {
+                FrameBufferTextureFormat::RGBA8,
+    //            FrameBufferTextureFormat::RGB8,
+    //            FrameBufferTextureFormat::RED_INTEGER,
+                FrameBufferTextureFormat::Depth,
+        };
+        m_frameBuffer = FrameBuffer::createFrameBuffer(spec);
+    }
 
     // Init Renderer
     Renderer::init();
@@ -59,6 +56,7 @@ RendererSpace::RendererApp::~RendererApp() {
 void RendererSpace::RendererApp::run() {
     while(!b_stop) {
         onUpdate();
+        RendererSpace::GlobalSettings::onUpdate();
 
         beginImGuiFrame();
         onImGuiRender();
@@ -69,15 +67,15 @@ void RendererSpace::RendererApp::run() {
 }
 
 void RendererSpace::RendererApp::onUpdate() {
-#if USE_FRAMEBUFFER
-    FrameBufferSpecification spec = m_frameBuffer->getSpecification();
-    if(m_viewportSize.x > 0.0f && m_viewportSize.y > 0.0f && (spec.Width != m_viewportSize.x || spec.Height != m_viewportSize.y)) {
-        m_frameBuffer->resize((uint32_t) m_viewportSize.x, (uint32_t) m_viewportSize.y);
-        m_rendererCamera->setViewportSize(m_viewportSize.x, m_viewportSize.y);
+    if(GlobalSettings::b_useFrameBuffer) {
+        FrameBufferSpecification spec = m_frameBuffer->getSpecification();
+        if(m_viewportSize.x > 0.0f && m_viewportSize.y > 0.0f && (spec.Width != m_viewportSize.x || spec.Height != m_viewportSize.y)) {
+            m_frameBuffer->resize((uint32_t) m_viewportSize.x, (uint32_t) m_viewportSize.y);
+            m_rendererCamera->setViewportSize(m_viewportSize.x, m_viewportSize.y);
+        }
+        m_frameBuffer->bind();
+        m_frameBuffer->clearAttachment(0, -1);
     }
-    m_frameBuffer->bind();
-    m_frameBuffer->clearAttachment(0, -1);
-#endif
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glClearColor(m_settingsData.BackgroundColor.r, m_settingsData.BackgroundColor.g, m_settingsData.BackgroundColor.b,
@@ -89,9 +87,9 @@ void RendererSpace::RendererApp::onUpdate() {
     Renderer::drawModel();
     Renderer::endScene();
 
-#if USE_FRAMEBUFFER
-    m_frameBuffer->unbind();
-#endif
+    if(GlobalSettings::b_useFrameBuffer) {
+        m_frameBuffer->unbind();
+    }
 }
 
 void RendererSpace::RendererApp::beginImGuiFrame() const {
@@ -115,9 +113,9 @@ void RendererSpace::RendererApp::endImGuiFrame() const {
 
 
 void RendererSpace::RendererApp::onImGuiRender() {
-#if USE_FRAMEBUFFER
-    enableImGuiDocking();
-    {
+    if(GlobalSettings::b_useFrameBuffer) {
+        enableImGuiDocking();
+
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
         ImGui::Begin("Viewport");
 
@@ -130,15 +128,14 @@ void RendererSpace::RendererApp::onImGuiRender() {
         ImGui::End();
         ImGui::PopStyleVar();
     }
-#endif
 
-#if IMGUI_WIDGET_STATISTICS
-    statImGuiRender();
-#endif
+    if(GlobalSettings::b_enableImGuiWidgetStatistic) {
+        statImGuiRender();
+    }
 
-#if IMGUI_WIDGET_SETTINGS
-    settingsImGuiRender();
-#endif
+    if(GlobalSettings::b_enableImGuiWidgetSettings) {
+        settingsImGuiRender();
+    }
 }
 
 void RendererSpace::RendererApp::onEvent(Event& event) {
@@ -224,6 +221,11 @@ void RendererApp::statImGuiRender() {
 void RendererApp::settingsImGuiRender() {
     ImGui::Begin("Settings");
     ImGui::ColorEdit4("Background color", glm::value_ptr(m_settingsData.BackgroundColor));
+    ImGui::Checkbox("Use frame buffer", &GlobalSettings::b_useFrameBuffer);
+    ImGui::Checkbox("Use depth buffer", &GlobalSettings::b_useDepthBuffer);
+    ImGui::Checkbox("Enable blend", &GlobalSettings::b_enableBlend);
+    ImGui::Checkbox("Enable ImGui Statistic Widget", &GlobalSettings::b_enableImGuiWidgetStatistic);
+//    ImGui::Checkbox("Enable ImGui Settings Widget", &GlobalSettings::b_enableImGuiWidgetSettings);
     ImGui::End();
 }
 

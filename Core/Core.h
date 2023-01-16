@@ -5,6 +5,8 @@
 #ifndef RENDERER_CORE_H
 #define RENDERER_CORE_H
 
+#include "GlobalSettings.h"
+
 #define ASSERT(x, ...) if(!(x)) { LOG_FATAL("Assertion Failed: {0}", __VA_ARGS__); raise(SIGABRT); }
 
 #include "iostream"

@@ -3,10 +3,6 @@
 #include "OBJ_Loader.h"
 #include "Buffers/FrameBuffer.h"
 
-#define ACTIVE_TEXTURE_SLOTS 1
-#define ENABLE_DEPTH_BUFFER 1
-#define ENABLE_BLEND 1
-
 
 namespace RendererSpace {
     RendererAPI Renderer::s_rendererAPI = RendererAPI::OpenGL;
@@ -14,19 +10,18 @@ namespace RendererSpace {
     RendererStat Renderer::s_stat;
 
     void Renderer::init() {
-#if ENABLE_BLEND
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-#endif
 
-#if ENABLE_DEPTH_BUFFER
-        glEnable(GL_DEPTH_TEST);
-        glDepthFunc(GL_LEQUAL);
-#endif
+        if(RendererSpace::GlobalSettings::b_enableBlend) {
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        }
 
-#if ACTIVE_TEXTURE_SLOTS
+        if(RendererSpace::GlobalSettings::b_useDepthBuffer) {
+            glEnable(GL_DEPTH_TEST);
+            glDepthFunc(GL_LEQUAL);
+        }
+
         glActiveTexture(GL_ACTIVE_TEXTURE);
-#endif
 
         loadOBJModel("../Assets/Models/spot/spot_triangulated_good.obj");
     }
@@ -39,8 +34,10 @@ namespace RendererSpace {
             return;
         }
 
-        for (auto mesh: Loader.LoadedMeshes)
-            s_data.CurrTriVertex += mesh.Vertices.size();
+        LOG_INFO("Load {}", filepath);
+
+        for (const auto& mesh: Loader.LoadedMeshes)
+            s_data.CurrTriVertex += (int)mesh.Vertices.size();
 
         s_data.VertexBuffer = RendererSpace::VertexBuffer::createVertexBuffer(
                 s_data.CurrTriVertex * sizeof(RendererSpace::TriVertex));

@@ -24,13 +24,28 @@ RendererSpace::OpenGLWindow::OpenGLWindow(const RendererSpace::WindowProps &prop
 
     m_window = glfwCreateWindow((int)m_windowData.Width, (int)m_windowData.Height,
                                 m_windowData.Title.c_str(), nullptr, nullptr);
+
     if(!m_window) {
         glfwTerminate();
+    }
+
+    // Set window on center of monitor 0
+    int monitorCount;
+    GLFWmonitor** pMonitor =  glfwGetMonitors(&monitorCount);
+    LOG_INFO("Screen number: {}", monitorCount);
+    for(int i = 0; i < monitorCount; i++){
+        const GLFWvidmode* mode = glfwGetVideoMode(pMonitor[i]);
+        LOG_INFO("Screen {} resolution is ({}, {})", i+1, mode->width, mode->height);
+        if(i == 0) {
+            int leftPosX = (int)(mode->width - m_windowData.Width) / 2, leftPosY = (int)(mode->height - m_windowData.Height) / 2;
+            glfwSetWindowPos(m_window, leftPosX, leftPosY);
+        }
     }
 
     // make context
     m_context = GraphicsContext::createGraphicsContext(m_window);
     m_context->init();
+
     // set user defined data structure
     glfwSetWindowUserPointer(m_window, &m_windowData);
     setVSync(true);
@@ -40,7 +55,7 @@ RendererSpace::OpenGLWindow::OpenGLWindow(const RendererSpace::WindowProps &prop
     setGLFWKeyEventCallback();
     setGLFWApplicationEventCallback();
 
-    LOG_INFO("CreateWindow window \"{0}\": ({1}, {2})", m_windowData.Title, m_windowData.Width, m_windowData.Height);
+    LOG_INFO("CreateWindow window \"{}\": ({}, {})", m_windowData.Title, m_windowData.Width, m_windowData.Height);
 }
 
 void RendererSpace::OpenGLWindow::onUpdate() {

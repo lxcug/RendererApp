@@ -53,7 +53,7 @@ add_executable(Renderer main.cpp
         Core/OpenGLInput.cpp Core/OpenGLInput.h
         Buffers/Texture.cpp Platform/OpenGL/OpenGLTexture.cpp
         Buffers/FrameBuffer.cpp Platform/OpenGL/OpenGLFrameBuffer.cpp
-        Core/Mesh.cpp Core/Mesh.h)
+        Core/Mesh.cpp Core/Mesh.h Core/GlobalSettings.h Core/GlobalSettings.cpp)
 
 
 find_library(GLFW glfw3 ${PROJECT_SOURCE_DIR}/vendor/GLFW/lib-mingw-w64)
