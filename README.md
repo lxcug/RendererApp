@@ -34,3 +34,9 @@
 >
 > - [x] Fixed Timer.h error
 > - [x] Fixed FrameBuffer Resize Error
+
+> **2023 1.16**
+>
+> * Add Global Settings 
+>
+> <img src="https://raw.githubusercontent.com/lxcug/imgs/main/imgs20230116210652.png" style="zoom:50%;" />
