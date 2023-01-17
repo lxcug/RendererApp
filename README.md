@@ -40,3 +40,16 @@
 > * Add Global Settings 
 >
 > <img src="https://raw.githubusercontent.com/lxcug/imgs/main/imgs20230116210652.png" style="zoom:50%;" />
+
+> **2023.1.17**
+>
+> * Add mesh and material
+> * Add point light and light control panel
+>
+> <img src="https://raw.githubusercontent.com/lxcug/imgs/main/imgs20230118042632.png" style="zoom:50%;" />
+
+> **2023 1.18**
+>
+> * Use ImGuizmo to control Point Light
+>
+> <img src="https://raw.githubusercontent.com/lxcug/imgs/main/imgs20230118053447.png" style="zoom:50%;" />
