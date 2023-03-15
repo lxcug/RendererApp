@@ -150,6 +150,8 @@ namespace RendererSpace {
         virtual const BufferLayout& getLayout() const = 0;
         virtual void setLayout(const BufferLayout& layout) = 0;
 
+        virtual int getVertexDataSize() const = 0;
+
         static Ref<VertexBuffer> createVertexBuffer(unsigned size);
         static Ref<VertexBuffer> createVertexBuffer(float* vertices, unsigned size);
     };

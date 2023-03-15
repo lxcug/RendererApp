@@ -13,7 +13,6 @@
 namespace RendererSpace {
     enum class FrameBufferTextureFormat {
         None = 0x0,
-        RGB8,
         RGBA8,
         RED_INTEGER,
         DEPTH24STENCIL8,
