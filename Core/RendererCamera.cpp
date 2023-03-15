@@ -12,9 +12,6 @@ void RendererSpace::RendererCamera::updateView() {
     glm::quat orientation = getOrientation();
     m_view = glm::translate(glm::mat4(1.0f), m_position) * glm::toMat4(orientation);
     m_view = glm::inverse(m_view);
-
-    LOG_INFO("focal point {} {} {}", m_focalPoint.x, m_focalPoint.y, m_focalPoint.z);
-    LOG_INFO("camera pos {} {} {}", m_position.x, m_position.y, m_position.z);
 }
 
 glm::vec3 RendererSpace::RendererCamera::calculatePosition() const {
