@@ -12,6 +12,8 @@ include_directories(vendor/SPIRV-Cross)
 include_directories(vendor/shaderc/libshaderc/include)
 include_directories(vendor/spdlog/include)
 include_directories(vendor/Glad/include)
+include_directories(vendor/ImGuizmo)
+include_directories(vendor/entt/include)
 
 
 add_executable(Renderer main.cpp
@@ -53,7 +55,12 @@ add_executable(Renderer main.cpp
         Core/OpenGLInput.cpp Core/OpenGLInput.h
         Buffers/Texture.cpp Platform/OpenGL/OpenGLTexture.cpp
         Buffers/FrameBuffer.cpp Platform/OpenGL/OpenGLFrameBuffer.cpp
-        Core/Mesh.cpp Core/Mesh.h Core/GlobalSettings.h Core/GlobalSettings.cpp)
+        Core/Mesh.cpp Core/Mesh.h Core/GlobalSettings.h Core/GlobalSettings.cpp
+        ${PROJECT_SOURCE_DIR}/vendor/ImGuizmo/ImGuizmo.h
+        ${PROJECT_SOURCE_DIR}/vendor/ImGuizmo/ImGuizmo.cpp
+        Components/Components.cpp Components/Components.h
+        Core/ProjectPaths.cpp Core/ProjectPaths.h
+        Core/GUID.cpp Core/GUID.h Scene/RendererScene.cpp Scene/RendererScene.h Scene/Entity.cpp Scene/Entity.h Core/Object.cpp Core/Object.h)
 
 
 find_library(GLFW glfw3 ${PROJECT_SOURCE_DIR}/vendor/GLFW/lib-mingw-w64)
