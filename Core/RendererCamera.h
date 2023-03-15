@@ -19,9 +19,11 @@ namespace RendererSpace {
     public:
         RendererCamera() {
             m_projection = glm::perspective(glm::radians(m_FOV), m_aspectRatio, m_nearClip, m_farClip);
+            updateView();
         }
         RendererCamera(float fov, float aspect, float near, float far) {
             m_projection = glm::perspective(glm::radians(m_FOV), m_aspectRatio, m_nearClip, m_farClip);
+            updateView();
         }
 
         void onUpdate();
@@ -40,11 +42,14 @@ namespace RendererSpace {
             updateProjection();
         }
 
-        const glm::mat4& getViewMatrix() const {
-            return m_viewMatrix;
+        const glm::mat4& getView() const {
+            return m_view;
         }
-        glm::mat4 getViewProjection() const {
-            return m_projection * m_viewMatrix;
+        const glm::mat4& getProjection() const {
+            return m_projection;
+        }
+        glm::mat4 getViewProjection() {
+            return m_projection * m_view;
         };
 
         glm::vec3 getUpDirection() const { return glm::rotate(getOrientation(), glm::vec3(0.f, 1.f, 0.f)); }
@@ -53,6 +58,10 @@ namespace RendererSpace {
         const glm::vec3& getPosition() const {
             return m_position;
         }
+        const glm::vec3& getFocalPoint() const {
+            return m_focalPoint;
+        }
+
         glm::quat getOrientation() const { return glm::quat(glm::vec3(-m_pitch, -m_yaw, 0.f)); }
 
         float getPitch() const { return m_pitch; }
@@ -73,9 +82,9 @@ namespace RendererSpace {
 
     private:
         float m_FOV = 45.f, m_aspectRatio = 1.778f;
-        float m_nearClip = .1f, m_farClip = 1000.f;
+        float m_nearClip = .1f, m_farClip = 100.f;
 
-        glm::mat4 m_viewMatrix;
+        glm::mat4 m_view;
         glm::vec3 m_position = {0.f, 0.f, 0.f};
         glm::vec3 m_focalPoint = {0.f, 0.f, 0.f};
         glm::vec2 m_initialMousePosition = {0.f, 0.f};

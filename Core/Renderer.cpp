@@ -1,16 +1,17 @@
 #include "Glad/glad.h"
 #include "Renderer.h"
-#include "OBJ_Loader.h"
 #include "Buffers/FrameBuffer.h"
 
 
 namespace RendererSpace {
     RendererAPI Renderer::s_rendererAPI = RendererAPI::OpenGL;
-    Renderer3DData Renderer::s_data;
     RendererStat Renderer::s_stat;
+    Ref<Object> Renderer::s_object;
+    Ref<Shader> Renderer::s_shader;
+    std::array<Ref<Texture2D>, 32> Renderer::s_textures;
+    Ref<PointLight> Renderer::s_pointLight;
 
     void Renderer::init() {
-
         if(RendererSpace::GlobalSettings::b_enableBlend) {
             glEnable(GL_BLEND);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -23,103 +24,63 @@ namespace RendererSpace {
 
         glActiveTexture(GL_ACTIVE_TEXTURE);
 
-        loadOBJModel("../Assets/Models/spot/spot_triangulated_good.obj");
-    }
+        s_shader = RendererSpace::Shader::createShader("../Assets/Shaders/TextureShader.glsl");
+        s_shader->bind();
 
-    void Renderer::loadOBJModel(const std::string &filepath) {
-        objl::Loader Loader;
-        bool loadOut = Loader.LoadFile(filepath);
-        if (!loadOut) {
-            ASSERT(false, "Can't load obj file!");
-            return;
+        // Place Point Light
+        if(GlobalSettings::b_placePointLight) {
+            s_pointLight = createRef<PointLight>();
+            placePointLight(*s_pointLight);
         }
 
-        LOG_INFO("Load {}", filepath);
-
-        for (const auto& mesh: Loader.LoadedMeshes)
-            s_data.CurrTriVertex += (int)mesh.Vertices.size();
-
-        s_data.VertexBuffer = RendererSpace::VertexBuffer::createVertexBuffer(
-                s_data.CurrTriVertex * sizeof(RendererSpace::TriVertex));
-
-        s_data.Vertices.reserve(s_data.CurrTriVertex);
-
-        std::vector<int> indices;
-        for (auto &mesh: Loader.LoadedMeshes) {
-            LOG_INFO("Mesh name: {}", mesh.MeshName);
-            for (int i = 0; i < mesh.Vertices.size(); i++) {
-                s_data.Vertices.push_back(
-                        {
-                            glm::vec3(mesh.Vertices[i].Position.X, mesh.Vertices[i].Position.Y,mesh.Vertices[i].Position.Z),
-                            glm::vec3(mesh.Vertices[i].Normal.X, mesh.Vertices[i].Normal.Y,mesh.Vertices[i].Normal.Z),
-                            glm::vec4(169 / 255., 169 / 255., 169 / 255., 1.),
-                            glm::vec2(mesh.Vertices[i].TextureCoordinate.X,mesh.Vertices[i].TextureCoordinate.Y),
-                            0.
-                        }
-                        );
-            }
-
-            for (int j = 0; j < mesh.Indices.size(); j += 3) {
-                indices.push_back(mesh.Indices[j]);
-                indices.push_back(mesh.Indices[j + 1]);
-                indices.push_back(mesh.Indices[j + 2]);
-            }
-        }
-
-        s_data.VertexBuffer->setData(s_data.Vertices.data(), s_data.Vertices.size() * sizeof(TriVertex));
-
-        s_data.IndexCount = indices.size();
-        auto *temp = new unsigned int[indices.size()];
-        memcpy(temp, &indices[0], indices.size() * sizeof(unsigned int));
-        Ref<IndexBuffer> triIndexBuffer = RendererSpace::IndexBuffer::createIndexBuffer(temp, indices.size());
-
-        delete[] temp;
-
-
-        s_data.VertexArray = RendererSpace::VertexArray::createVertexArray();
-        s_data.VertexBuffer->setLayout({
-                                               {ShaderDataType::Float3, "a_Position"},
-                                               {ShaderDataType::Float3, "a_Normal"},
-                                               {ShaderDataType::Float4, "a_Color"},
-                                               {ShaderDataType::Float2, "a_TexCoord"},
-                                               {ShaderDataType::Float, "a_TexIndex"},
-                                       });
-        s_data.VertexArray->addVertexBuffer(s_data.VertexBuffer);
-        s_data.VertexArray->setIndexBuffer(triIndexBuffer);
-
-        s_data.Shader = RendererSpace::Shader::createShader("../Assets/Shaders/Renderer2D_Triangle.glsl");
-        s_data.Shader->bind();
-
-        s_data.Textures[0] = Texture2D::createTexture2D("../Assets/Models/spot/spot_texture.png");
-        s_data.Textures[0]->bind(0);
-        s_data.Textures[1] = Texture2D::createTexture2D("../Assets/Models/rock/rock.png");
-        s_data.Textures[1]->bind(1);
-        s_data.Textures[2] = Texture2D::createTexture2D("../Assets/Models/Crate/crate_1.jpg");
-        s_data.Textures[2]->bind(2);
-
-
+        s_textures[0] = Texture2D::createTexture2D("../Assets/Models/spot/spot_texture.png");
+        s_textures[0]->bind(0);
+        s_textures[1] = Texture2D::createTexture2D("../Assets/Models/rock/rock.png");
+        s_textures[1]->bind(1);
+        s_textures[2] = Texture2D::createTexture2D("../Assets/Models/Crate/crate_1.jpg");
+        s_textures[2]->bind(2);
         // NOTE: Actually we don't need to do this, cause the initial value of uniform sample2D u_Textures[i] is i
         int samplers[32];
         for(int i = 0; i < 32; i++)
             samplers[i] = i;
-        s_data.Shader->setIntArray("u_Textures", samplers, 32);
+        s_shader->setIntArray("u_Textures", samplers, 32);
+    }
 
+    void Renderer::loadOBJModel(const std::string &filepath) {
+        s_stat.resetStat();
 
+        s_object = createRef<Object>();
+        s_object->loadObject(filepath);
 
         // statistic
-        s_stat.VertexCount = s_data.CurrTriVertex;
-        s_stat.IndexCount = s_data.IndexCount;
-        s_stat.TriangleCount = s_data.IndexCount / 3;
+        for(const auto& mesh: s_object->getMeshes()) {
+            s_stat.VertexCount += (int)(mesh.getVertexCount());
+            s_stat.IndexCount += (int)mesh.getIndexCount();
+            s_stat.TriangleCount += s_stat.IndexCount/3;
+        }
     }
 
-    void Renderer::drawModel() {
-        s_data.Shader->bind();
-        s_data.VertexArray->bind();
-        glDrawElements(GL_TRIANGLES, (GLsizei)s_data.IndexCount, GL_UNSIGNED_INT, nullptr);
+    void Renderer::drawModel(Ref<Object> object, const glm::mat4& transform) {
+        drawModel(*object, transform);
     }
 
-    void Renderer::beginScene(RendererCamera &camera) {
-        s_data.Shader->setMat4("u_ViewProjection", camera.getViewProjection());
+    void Renderer::drawModel(Object& object, const glm::mat4 &transform) {
+        if(GlobalSettings::b_wireframeMode) {
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        }
+        else {
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        }
+        if(GlobalSettings::b_placePointLight) {
+            updatePointLight(*s_pointLight);
+        }
+
+        s_shader->setMat4("u_Model", transform);
+        object.draw();
+    }
+
+    void Renderer::drawModel(const glm::mat4 &transform) {
+        drawModel(s_object, transform);
     }
 
     void Renderer::endScene() {
@@ -127,11 +88,34 @@ namespace RendererSpace {
     }
 
     void Renderer::beginScene(Ref<RendererCamera> camera) {
-        s_data.Shader->setMat4("u_ViewProjection", camera->getViewProjection());
+        if(GlobalSettings::b_placePointLight) {
+            s_shader->setFloat3("u_EyePos", camera->getPosition());
+        }
+        s_shader->setMat4("u_View", camera->getView());
+        s_shader->setMat4("u_Projection", camera->getProjection());
     }
 
     void Renderer::beginScene() {
-        glm::mat4 viewProjection = {1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1};
-        s_data.Shader->setMat4("u_ViewProjection", viewProjection);
+//        glm::mat4 viewProjection = {1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1};
+//        s_shader->setMat4("u_ViewProjection", viewProjection);
+    }
+
+    void Renderer::placePointLight(PointLight& pointLight) {
+//        LOG_INFO("Set Point Light on ({}, {}, {})", pointLight.Pos.x, pointLight.Pos.y, pointLight.Pos.z);
+        s_shader->setFloat3("u_Light.Ka", pointLight.Ka);
+        s_shader->setFloat3("u_Light.Kd", pointLight.Kd);
+        s_shader->setFloat3("u_Light.Ks", pointLight.Ks);
+        s_shader->setFloat3("u_Light.Pos", pointLight.Pos);
+        s_shader->setFloat3("u_Light.Intensity", pointLight.Intensity);
+        s_shader->setMat4("u_Trans", pointLight.TransformComponent.getTransform());
+    }
+
+    void Renderer::updatePointLight(PointLight& pointLight) {
+        s_shader->setFloat3("u_Light.Ka", {pointLight.Ka.x, pointLight.Ka.x, pointLight.Ka.x});
+        s_shader->setFloat3("u_Light.Kd", {pointLight.Kd.x, pointLight.Kd.x, pointLight.Kd.x});
+        s_shader->setFloat3("u_Light.Ks", {pointLight.Ks.x, pointLight.Ks.x, pointLight.Ks.x});
+        s_shader->setFloat3("u_Light.Pos", {pointLight.Pos.x, pointLight.Pos.y, pointLight.Pos.z});
+        s_shader->setFloat3("u_Light.Intensity", {pointLight.Intensity.x, pointLight.Intensity.x, pointLight.Intensity.x});
+        s_shader->setMat4("u_Trans", pointLight.TransformComponent.getTransform());
     }
 }

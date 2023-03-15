@@ -16,6 +16,8 @@
 #include "Core/RendererCamera.h"
 #include "Buffers/FrameBuffer.h"
 #include "Core/Mesh.h"
+#include "Scene/RendererScene.h"
+#include "Scene/Entity.h"
 
 
 namespace RendererSpace {
@@ -50,10 +52,13 @@ namespace RendererSpace {
         void enableImGuiDocking();
         void statImGuiRender();
         void settingsImGuiRender();
-        struct SettingsData {
-            glm::vec4 BackgroundColor = {134/255., 255/255., 248/255., 128/255.};
-        };
-        SettingsData m_settingsData;
+        void ImGuizmoRender();
+
+        bool decomposeTransform(const glm::mat4 &transform, glm::vec3 &outTranslation, glm::vec3 &outRotation,
+                               glm::vec3 &outScale);
+
+        bool onKeyPressed(KeyPressedEvent& event);
+        bool onMouseButtonPressed(MouseButtonPressedEvent& event);
 
 
     private:
@@ -65,8 +70,21 @@ namespace RendererSpace {
 
         // For viewport
         glm::vec2 m_viewportSize = {0.f, 0.f};
+        glm::vec2 m_viewportBounds[2];
         Ref<FrameBuffer> m_frameBuffer;
         bool b_viewportFocused = false, b_viewportHovered = false, b_blockEvent = false;
+
+        int m_gizmoType = -1;
+
+        struct SettingsData {
+            glm::vec4 BackgroundColor = {.1, .1, .1, 1.};
+        };
+        SettingsData m_settingsData;
+
+        Ref<RendererScene> m_scene;
+
+        Entity m_hoveredEntity;
+        Entity m_selectedEntity;
     };
 }
 

@@ -14,38 +14,44 @@
 #include "Buffers/UniformBuffer.h"
 #include "RendererCamera.h"
 #include "Buffers/Texture.h"
+#include "Mesh.h"
+#include "Components/Components.h"
+#include "Object.h"
+#include "GUID.h"
 
 
 namespace RendererSpace {
-    struct TriVertex {
-        glm::vec3 Position;
-        glm::vec3 Normal;
-        glm::vec4 Color;
-        glm::vec2 TexCoord;
-        float TexIndex;
-
-        TriVertex(glm::vec3 position, glm::vec3 normal, glm::vec4 color, glm::vec2 texCoord, float texIndex): Position(position),
-        Normal(normal), Color(color), TexCoord(texCoord), TexIndex(texIndex) {}
-    };
-
-    struct Renderer3DData {
-        Ref<Shader> Shader;
-        Ref<VertexBuffer> VertexBuffer;
-        Ref<IndexBuffer> IndexBuffer;
-        Ref<VertexArray> VertexArray;
-
-        std::array<Ref<Texture2D>, 32> Textures;
-
-        std::vector<TriVertex> Vertices;
-
-        int CurrTriVertex = 0;
-        int IndexCount = 0;
-    };
-
     struct RendererStat {
         int VertexCount = 0;
         int IndexCount = 0;
         int TriangleCount = 0;
+
+        void resetStat() {
+            VertexCount = 0;
+            IndexCount = 0;
+            TriangleCount = 0;
+        }
+    };
+
+
+    struct PointLight {
+        glm::vec3 Ka, Kd, Ks;
+        glm::vec3 Pos;
+        glm::vec3 Intensity;
+
+        RendererSpace::TransformComponent TransformComponent;
+
+        PointLight(): Ka(.2, .2, .2), Kd(.1, .1, .1), Ks(0.3, 0.3, 0.3),
+        Pos(0, 0, 0), Intensity(20., 20., 20.) {}
+
+        glm::mat4 getTransform() {
+            return TransformComponent.getTransform();
+        }
+
+        glm::vec3 getTransformedPosition() {
+            auto res = getTransform() * glm::vec4(Pos, 1.);
+            return {res.x, res.y, res.z};
+        }
     };
 }
 
@@ -63,19 +69,41 @@ namespace RendererSpace {
 
         static void loadOBJModel(const std::string& filepath);
 
+        static void placePointLight(PointLight& pointLight);
+        static Ref<PointLight> getPointLight() {
+            return s_pointLight;
+        }
+        static void updatePointLight(PointLight& pointLight);
+
         static void beginScene();
-        static void beginScene(RendererCamera& camera);
+//        static void beginScene(RendererCamera& camera);
         static void beginScene(Ref<RendererCamera> camera);
         static void endScene();
+        static void drawModel(const glm::mat4& transform = glm::identity<glm::mat4>());
 
-        static void drawModel();
+        static void drawModel(Ref<Object> object, const glm::mat4& transform);
+        static void drawModel(Object& object, const glm::mat4& transform);
+
+        void meshSubdivision() {
+
+        }
+        void meshSimplification() {
+
+        }
+        void meshRegularization() {
+
+        }
 
         static RendererStat& getStat() { return s_stat; }
 
-//    private:
+        static Ref<PointLight> s_pointLight;
+
+    private:
         static RendererAPI s_rendererAPI;
-        static Renderer3DData s_data;
         static RendererStat s_stat;
+        static Ref<Object> s_object;
+        static Ref<Shader> s_shader;
+        static std::array<Ref<Texture2D>, 32> s_textures;
     };
 }
 

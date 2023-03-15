@@ -10,12 +10,15 @@ void RendererSpace::RendererCamera::updateProjection() {
 void RendererSpace::RendererCamera::updateView() {
     m_position = calculatePosition();
     glm::quat orientation = getOrientation();
-    m_viewMatrix = glm::translate(glm::mat4(1.0f), m_position) * glm::toMat4(orientation);
-    m_viewMatrix = glm::inverse(m_viewMatrix);
+    m_view = glm::translate(glm::mat4(1.0f), m_position) * glm::toMat4(orientation);
+    m_view = glm::inverse(m_view);
+
+    LOG_INFO("focal point {} {} {}", m_focalPoint.x, m_focalPoint.y, m_focalPoint.z);
+    LOG_INFO("camera pos {} {} {}", m_position.x, m_position.y, m_position.z);
 }
 
 glm::vec3 RendererSpace::RendererCamera::calculatePosition() const {
-    return m_focalPoint - getForwardDirection() * m_distance;
+    return m_focalPoint - getForwardDirection() * m_distance;  // get camera position
 }
 
 bool RendererSpace::RendererCamera::onMouseScroll(RendererSpace::MouseScrolledEvent &event) {
@@ -27,6 +30,7 @@ bool RendererSpace::RendererCamera::onMouseScroll(RendererSpace::MouseScrolledEv
 
 void RendererSpace::RendererCamera::mousePan(const glm::vec2 &delta) {
     auto [xSpeed, ySpeed] = panSpeed();
+    // move focalPoint
     m_focalPoint += -getRightDirection() * delta.x * xSpeed * m_distance;
     m_focalPoint += getUpDirection() * delta.y * ySpeed * m_distance;
 }
@@ -38,17 +42,20 @@ void RendererSpace::RendererCamera::mouseRotate(const glm::vec2 &delta) {
 }
 
 void RendererSpace::RendererCamera::mouseZoom(float delta) {
+    // increase distance between focalPoint and targetPoint
     m_distance -= delta * zoomSpeed();
-    if(m_distance < 1.0f) {
-        m_focalPoint += getForwardDirection();
+    if(m_distance < 1.0f) {  // if dis < 1.f, move focalPoint
+        m_focalPoint += getForwardDirection() * zoomSpeed();
         m_distance = 1.0f;
     }
+//    m_FOV -= delta * zoomSpeed();
+//    updateProjection();
 }
 
 std::pair<float, float> RendererSpace::RendererCamera::panSpeed() const {
-    float x = std::min(m_viewportWidth / 1000.0f, 2.4f); // max = 2.4f
+    float x = std::min(m_viewportWidth / 1000.0f, 2.4f);  // max = 2.4f
     float xFactor = 0.0366f * (x * x) - 0.1778f * x + 0.3021f;
-    float y = std::min(m_viewportHeight / 1000.0f, 2.4f); // max = 2.4f
+    float y = std::min(m_viewportHeight / 1000.0f, 2.4f);  // max = 2.4f
     float yFactor = 0.0366f * (y * y) - 0.1778f * y + 0.3021f;
 
     return { xFactor, yFactor };

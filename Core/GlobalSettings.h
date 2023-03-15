@@ -35,11 +35,14 @@ namespace RendererSpace {
         static bool b_enableBlend;
         static bool b_useFrameBuffer;
         static bool b_useDepthBuffer;
+        static bool b_wireframeMode;
 
 
         // ImGui Settings
         static bool b_enableImGuiWidgetSettings;
         static bool b_enableImGuiWidgetStatistic;
+
+        static bool b_placePointLight;
     };
 }
 
