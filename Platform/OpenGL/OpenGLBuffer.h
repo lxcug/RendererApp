@@ -8,7 +8,6 @@
 
 #include "Core/Core.h"
 #include "Buffers/Buffer.h"
-#include "Glad/glad.h"
 
 
 namespace RendererSpace {
@@ -24,9 +23,10 @@ namespace RendererSpace {
         void bind() const override;
         void unBind() const override;
 
-        void setData(const void *data, unsigned int size) override {
-            glBindBuffer(GL_ARRAY_BUFFER, m_rendererID);
-            glBufferSubData(GL_ARRAY_BUFFER, 0, size, data);
+        void setData(const void *data, unsigned int size) override;
+
+        int getVertexDataSize() const override {
+            return m_dataSize;
         }
 
         [[nodiscard]] const BufferLayout & getLayout() const override {
@@ -39,6 +39,7 @@ namespace RendererSpace {
     private:
         unsigned m_rendererID;
         BufferLayout m_layout;
+        int m_dataSize = 0;
     };
 
 

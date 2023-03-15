@@ -9,11 +9,9 @@
 #include "Core/Core.h"
 #include "Core/Logger.h"
 #include "Buffers/GraphicsContex.h"
-#include "Glad/glad.h"
-#include "GLFW/glfw3.h"
-#include "GL/gl.h"
 
 
+class GLFWwindow;
 namespace RendererSpace {
     class OpenGLContext : public GraphicsContext {
     public:

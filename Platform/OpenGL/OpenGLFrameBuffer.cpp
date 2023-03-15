@@ -10,7 +10,6 @@ namespace RendererSpace {
 
         static GLenum rendererFrameBufferTextureFormatToGL(FrameBufferTextureFormat format) {
             switch (format) {
-                case FrameBufferTextureFormat::RGB8:        return GL_RGB8;
                 case FrameBufferTextureFormat::RGBA8:       return GL_RGBA8;
                 case FrameBufferTextureFormat::RED_INTEGER: return GL_RED_INTEGER;
             }
@@ -66,11 +65,6 @@ void RendererSpace::OpenGLFrameBuffer::invalidate() {
             glBindTexture(GL_TEXTURE_2D, m_colorAttachments[i]);
 
             switch (m_colorAttachmentSpecifications[i].TextureFormat) {
-                case FrameBufferTextureFormat::RGB8: {
-                    Utils::attachColorTexture(m_colorAttachments[i], GL_RGB8, GL_RGB,
-                                              m_specification.Width, m_specification.Height, i);
-                    break;
-                }
                 case FrameBufferTextureFormat::RGBA8: {
                     Utils::attachColorTexture(m_colorAttachments[i], GL_RGBA8, GL_RGBA,
                                               m_specification.Width, m_specification.Height, i);

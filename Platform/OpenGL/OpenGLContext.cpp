@@ -1,4 +1,7 @@
 #include "OpenGLContext.h"
+#include "Glad/glad.h"
+#include "GLFW/glfw3.h"
+#include "GL/gl.h"
 
 
 namespace RendererSpace {

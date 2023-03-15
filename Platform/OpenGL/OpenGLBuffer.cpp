@@ -7,12 +7,14 @@ RendererSpace::OpenGLVertexBuffer::OpenGLVertexBuffer(unsigned int size) {
     glGenBuffers(1, &m_rendererID);
     glBindBuffer(GL_ARRAY_BUFFER, m_rendererID);  // bind vertex buffer
     glBufferData(GL_ARRAY_BUFFER, size, nullptr, GL_DYNAMIC_DRAW);
+    m_dataSize = (int)size;
 }
 
 RendererSpace::OpenGLVertexBuffer::OpenGLVertexBuffer(float* vertices, unsigned size) {  // NOLINT
     glGenBuffers(1, &m_rendererID);
     glBindBuffer(GL_ARRAY_BUFFER, m_rendererID);  // bind vertex buffer
     glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);
+    m_dataSize = (int)size;
 }
 
 RendererSpace::OpenGLVertexBuffer::~OpenGLVertexBuffer() {
@@ -25,6 +27,12 @@ void RendererSpace::OpenGLVertexBuffer::bind() const {
 
 void RendererSpace::OpenGLVertexBuffer::unBind() const {
     glBindBuffer(GL_ARRAY_BUFFER, 0);  // unbind OpenGL vertex buffer
+}
+
+void RendererSpace::OpenGLVertexBuffer::setData(const void *data, unsigned int size) {
+    glBindBuffer(GL_ARRAY_BUFFER, m_rendererID);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, size, data);
+    m_dataSize = (int)size;
 }
 
 

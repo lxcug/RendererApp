@@ -6,6 +6,7 @@
 #define RENDERER_OPENGLWINDOW_H
 
 #include "Core/Window.h"
+#include "GLFW/glfw3.h"
 #include "Buffers/GraphicsContex.h"
 #include "Platform/OpenGL/OpenGLContext.h"
 
