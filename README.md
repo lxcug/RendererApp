@@ -53,3 +53,9 @@
 > * Use ImGuizmo to control Point Light
 >
 > <img src="https://raw.githubusercontent.com/lxcug/imgs/main/imgs20230118054142.png" style="zoom:50%;" />
+
+> **2023.3.15**
+>
+> * Use ImGuizmo to control models in the scene
+>
+> <img src="https://raw.githubusercontent.com/lxcug/imgs/main/imgs20230315161453.png" style="zoom:50%;" />
