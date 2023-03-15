@@ -52,4 +52,4 @@
 >
 > * Use ImGuizmo to control Point Light
 >
-> <img src="https://raw.githubusercontent.com/lxcug/imgs/main/imgs20230118053447.png" style="zoom:50%;" />
+> <img src="https://raw.githubusercontent.com/lxcug/imgs/main/imgs20230118054142.png" style="zoom:50%;" />
